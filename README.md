@@ -1,6 +1,8 @@
 build_kali_desktop
 =========
 
+![ansible-lint workflow](https://github.com/straysheep-dev/ansible-role-build_kali_desktop/actions/workflows/ansible-lint.yml/badge.svg) ![shellcheck workflow](https://github.com/straysheep-dev/ansible-role-build_kali_desktop/actions/workflows/shellcheck.yml/badge.svg)
+
 Deploy a customizable desktop environment for [Kali Linux](https://www.kali.org/get-kali/).
 
 This role is meant to manage all things specific to Kali without getting in the way of more common system settings and services. Things such as DNS, logging, additional hardening, HIDS/IPS can (and should) be applied using other roles. For example none of these changes prevent you from telling Kali to use unbound or stubby for DNS over TLS to the public web, or even deploying an EDR agent along with auditd for log and event colleciton.
@@ -117,11 +119,19 @@ ansible-playbook -i "localhost," -c local -e '{"webapp_tools":true,"c2_choice":"
 License
 -------
 
-[MIT](https://github.com/straysheep-dev/ansible-configs/blob/main/LICENSE): All files unless otherwise noted are released under the MIT license.
+[MIT](https://github.com/straysheep-dev/ansible-configs/blob/main/LICENSE)
 
-[BSD-3-Clause](https://github.com/IppSec/parrot-build/tree/master/roles/customize-browser#license): The method for obtaining the Burpsuite CA was learned and taken from IppSec's parrot-build [getburpcert.sh](https://github.com/IppSec/parrot-build/blob/master/roles/customize-browser/files/getburpcert.sh). That task block here will remain under the BSD-3-Clause.
+All files unless otherwise noted are released under the MIT license.
 
-[MPL-2.0](https://github.com/straysheep-dev/ansible-role-build_kali_desktop/blob/main/LICENSES/LICENSE-MPL-2.0), [GPL-2.0-or-later](https://gitlab.com/apparmor/apparmor/-/raw/master/LICENSE): The apparmor profiles here are [my own fork](https://github.com/straysheep-dev/linux-configs/tree/main/apparmor) of the original file(s) that used to ship with Ubuntu before Firefox moved to snap being the default. These work with both, Firefox and Firefox-ESR, with local overrides to protect `$HOME` and other paths via [usr.bin.firefox.local](https://github.com/straysheep-dev/linux-configs/blob/main/apparmor/apparmor-usr.bin.firefox.local). The `MPL-2.0` file and the original `usr.bin.firefox.apparmor.14.10` profile are from the [Firefox source on launchpad](https://bazaar.launchpad.net/~mozillateam/firefox/firefox.focal/files/head:/debian). That repo also contains a [copyright](https://github.com/straysheep-dev/ansible-role-build_kali_desktop/blob/LICENSES/copyright) file which listed `usr.bin.firefox.apparmor.14.10` as falling under the MPL-2.0.
+[BSD-3-Clause](https://github.com/IppSec/parrot-build/tree/master/roles/customize-browser#license)
+
+The method for obtaining the Burpsuite CA was learned and taken from IppSec's parrot-build [getburpcert.sh](https://github.com/IppSec/parrot-build/blob/master/roles/customize-browser/files/getburpcert.sh). That task block here will remain under the BSD-3-Clause.
+
+[MPL-2.0](https://github.com/straysheep-dev/ansible-role-build_kali_desktop/blob/main/LICENSES/LICENSE-MPL-2.0), [GPL-2.0-or-later](https://gitlab.com/apparmor/apparmor/-/raw/master/LICENSE)
+
+The apparmor profiles here are [my own fork](https://github.com/straysheep-dev/linux-configs/tree/main/apparmor) of the original file(s) that used to ship with Ubuntu before Firefox moved to snap being the default. These work with both, Firefox and Firefox-ESR, with local overrides to protect `$HOME` and other paths via [usr.bin.firefox.local](https://github.com/straysheep-dev/linux-configs/blob/main/apparmor/apparmor-usr.bin.firefox.local).
+
+The `MPL-2.0` file and the original `usr.bin.firefox.apparmor.14.10` profile are from the [Firefox source on launchpad](https://bazaar.launchpad.net/~mozillateam/firefox/firefox.focal/files/head:/debian). That repo also contains a [copyright](https://github.com/straysheep-dev/ansible-role-build_kali_desktop/blob/LICENSES/copyright) file which listed `usr.bin.firefox.apparmor.14.10` as falling under the MPL-2.0.
 
 - `apparmor-usr.bin.firefox` falls under the `MPL-2.0` license
 - `apparmor-firefox.abstractions` appears to be created by `aa-update-browser` and falls under the `GPL-2.0-or-later` license

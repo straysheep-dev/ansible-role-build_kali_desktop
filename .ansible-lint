@@ -16,8 +16,7 @@ exclude_paths:
   - .cache/ # implicit unless exclude_paths is defined in config
   - .git/                     # always ignore
   - .github/                  # always ignore
-  - "*/tests/"                # ignore tests/ folder for all roles
-  - "*/meta/"                 # ignore meta/ folder for all roles
+  - "tests/"                  # ignore tests/ folder
 
 # Process the following rules as warnings, and not fatal errors, globally
 warn_list:

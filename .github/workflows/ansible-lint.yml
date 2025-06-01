@@ -17,3 +17,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run ansible-lint
         uses: ansible/ansible-lint@main # or version tag instead of 'main'
+        # optional (see below):
+        with:
+          args: ""
+          setup_python: "true"
+          working_directory: ""
+          requirements_file: ""
