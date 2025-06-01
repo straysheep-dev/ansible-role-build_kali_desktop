@@ -119,7 +119,7 @@ ansible-playbook -i "localhost," -c local -e '{"webapp_tools":true,"c2_choice":"
 License
 -------
 
-[MIT](https://github.com/straysheep-dev/ansible-configs/blob/main/LICENSE)
+[MIT](./LICENSE-MIT)
 
 All files unless otherwise noted are released under the MIT license.
 
@@ -127,11 +127,11 @@ All files unless otherwise noted are released under the MIT license.
 
 The method for obtaining the Burpsuite CA was learned and taken from IppSec's parrot-build [getburpcert.sh](https://github.com/IppSec/parrot-build/blob/master/roles/customize-browser/files/getburpcert.sh). That task block here will remain under the BSD-3-Clause.
 
-[MPL-2.0](https://github.com/straysheep-dev/ansible-role-build_kali_desktop/blob/main/LICENSES/LICENSE-MPL-2.0), [GPL-2.0-or-later](https://gitlab.com/apparmor/apparmor/-/raw/master/LICENSE)
+[MPL-2.0](https://git.launchpad.net/~mozillateam/firefox/tree/debian/copyright), [GPL-2.0-or-later](https://gitlab.com/apparmor/apparmor/-/raw/master/LICENSE)
 
-The apparmor profiles here are [my own fork](https://github.com/straysheep-dev/linux-configs/tree/main/apparmor) of the original file(s) that used to ship with Ubuntu before Firefox moved to snap being the default. These work with both, Firefox and Firefox-ESR, with local overrides to protect `$HOME` and other paths via [usr.bin.firefox.local](https://github.com/straysheep-dev/linux-configs/blob/main/apparmor/apparmor-usr.bin.firefox.local).
+The apparmor profiles here are [my own fork](https://github.com/straysheep-dev/linux-configs/tree/main/apparmor) of the original file(s) that used to ship with Ubuntu before Firefox moved to snap being the default. These work with both, Firefox and Firefox-ESR, with local overrides to protect `$HOME` and other paths via [apparmor-usr.bin.firefox.local](./files/apparmor-usr.bin.firefox.local).
 
-The `MPL-2.0` file and the original `usr.bin.firefox.apparmor.14.10` profile are from the [Firefox source on launchpad](https://bazaar.launchpad.net/~mozillateam/firefox/firefox.focal/files/head:/debian). That repo also contains a [copyright](https://github.com/straysheep-dev/ansible-role-build_kali_desktop/blob/LICENSES/copyright) file which listed `usr.bin.firefox.apparmor.14.10` as falling under the MPL-2.0.
+The `MPL-2.0` file and the original `usr.bin.firefox.apparmor.14.10` profile are from the [Firefox source on launchpad](https://bazaar.launchpad.net/~mozillateam/firefox/firefox.focal/files/head:/debian). That repo also contains a [copyright](https://git.launchpad.net/~mozillateam/firefox/tree/debian/copyright) file which listed `usr.bin.firefox.apparmor.14.10` as falling under the MPL-2.0. A copy of this file is available in the root of this repo.
 
 - `apparmor-usr.bin.firefox` falls under the MPL-2.0 license
 - `apparmor-firefox.abstractions` appears to be created by `aa-update-browser` and falls under the GPL-2.0-or-later license

@@ -2,7 +2,8 @@
 # Author: Jamie Strandboge <jamie@canonical.com>
 
 # SPDX-License-Identifier: MPL-2.0
-# See the full copyright and MPL-2.0 files here: https://bazaar.launchpad.net/~mozillateam/firefox/firefox.focal/files/head:/debian
+# See the current copyright file here: https://git.launchpad.net/~mozillateam/firefox/tree/debian/copyright
+# Originally obtained from here: https://bazaar.launchpad.net/~mozillateam/firefox/firefox.focal/files/head:/debian
 
 # Declare an apparmor variable to help with overrides
 @{MOZ_LIBDIR}=/usr/lib/firefox-esr
