@@ -1,0 +1,8 @@
+---
+# build_kali_desktop/tasks/tools-c2.yml
+
+# This file determines which c2 tasks to include based on the value of the c2_choice variable.
+
+- name: Include Sliver C2 tasks
+  include_tasks: tools-c2-sliver.yml
+  when: c2_choice == "sliver"

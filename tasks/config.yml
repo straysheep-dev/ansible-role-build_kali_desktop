@@ -1,0 +1,98 @@
+---
+# build_kali_desktop/tasks/config.yml
+
+# Make general configuration changes with this role
+
+# Refresh SSH host keys (useful if this is a pre-installed VM)
+- name: "Reset OpenSSH Server Host Keys"
+  ansible.builtin.shell: |
+    rm -rf /etc/ssh/*host*
+    ssh-keygen -A
+  args:
+    executable: /bin/bash
+  become: true
+  become_method: ansible.builtin.sudo
+
+# =======
+# Firefox
+# =======
+# Installs a hardened Firefox policy
+# Firefox-esr actually reads the policy from /etc/firefox/policies/policies.json
+# You don't need to delete the default files under /etc/firefox-esr/, this policy will combine with Kali's default settings
+- name: "Create Firefox policy folder"
+  ansible.builtin.file:
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+    path: /etc/firefox/policies
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: "Install Firefox policies.json"
+  ansible.builtin.copy:
+    remote_src: false
+    src: firefox-policies-kali.json
+    dest: /etc/firefox/policies/policies.json
+    mode: "0644"
+    owner: root
+    group: root
+  become: true
+  become_method: ansible.builtin.sudo
+
+# ========
+# AppArmor
+# ========
+# Apply apparmor policy to Firefox
+- name: "Ensure Firefox apparmor policy is not disabled"
+  ansible.builtin.file:
+    path: /etc/apparmor.d/disable/usr.bin.firefox-esr
+    state: absent
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: "Install Firefox apparmor policy files"
+  ansible.builtin.copy:
+    remote_src: false
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0644"
+    owner: root
+    group: root
+  loop:
+    - { src: "apparmor-usr.bin.firefox-esr", dest: "/etc/apparmor.d/usr.bin.firefox-esr" }
+    - { src: "apparmor-firefox.abstractions", dest: "/etc/apparmor.d/abstractions/ubuntu-browsers.d/firefox-esr" }
+    - { src: "apparmor-usr.bin.firefox.local", dest: "/etc/apparmor.d/local/usr.bin.firefox-esr" }
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: "Enable and start apparmor service"
+  ansible.builtin.service:
+    name: apparmor
+    state: started
+    enabled: true
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: "Reload Firefox apparmor profile"
+  ansible.builtin.shell: |
+    set -o pipefail
+    apparmor_parser -r /etc/apparmor.d/usr.bin.firefox-esr
+  args:
+    executable: /bin/bash
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: "Register apparmor status"
+  ansible.builtin.shell: |
+    set -o pipefail
+    aa-status | grep -i 'firefox'
+  args:
+    executable: /bin/bash
+  register: apparmor_status
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: "Print apparmor status"
+  ansible.builtin.debug:
+    msg: "{{ apparmor_status.stdout_lines }}"

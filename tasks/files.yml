@@ -1,0 +1,37 @@
+---
+# build_kali_desktop/tasks/files.yml
+
+# Copies all of the utilities under this role's files/*.sh path to /usr/local/bin/ on the target node
+- name: "Install utility scripts"
+  ansible.builtin.copy:
+    remote_src: false
+    src: "{{ item }}"
+    dest: /usr/local/bin
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+  with_fileglob:
+    - "*.sh"
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Creates folders commonly used for tools or source code
+- name: "Create extra home folders"
+  ansible.builtin.file:
+    path: "/home/{{ ansible_facts['env']['USER'] }}/{{ item.dest }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - { dest: "src" }
+    - { dest: "tools" }
+
+# Creates folders to serve files from
+- name: "Create ~/Public/ file share folders"
+  ansible.builtin.file:
+    path: "/home/{{ ansible_facts['env']['USER'] }}/Public/{{ item.dest }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - { dest: "http" }
+    - { dest: "smb" }
+    - { dest: "webdav" }

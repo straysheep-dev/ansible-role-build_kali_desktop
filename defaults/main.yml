@@ -1,0 +1,27 @@
+---
+# defaults file for build_kali_desktop
+
+# Set to true to include core tools
+core_tools: true
+
+# Set to true to include pentest tools
+pentest_tools: false
+
+# Set to true to include webapp tools
+webapp_tools: false
+
+# Set to true to include wireless tools
+wireless_tools: false
+
+# Set to true to include analysis tools
+analysis_tools: false
+
+# Set to true to include development tools
+development_tools: false
+
+# Set to true to include forensics tools
+forensics_tools: false
+
+# Choose from a list of C2 frameworks to install one.
+# Currently only "none" or "sliver" are supported options
+c2_choice: "none"  # none, sliver

@@ -1,0 +1,305 @@
+---
+# vars file for build_kali_desktop
+
+# Ensure empty lists are initialized as empty lists, using the following:
+# some_list: []
+# ...until the list has at lease one item. Otherwise it will cause loops to break.
+
+# Many of the conditionals only work if both lists are in fact empty lists, and not NoneType.
+# You can define empty lists in your vars/ or defaults/ with some_var: [].
+# You can also initialize an empty list with `my_list | default([])` like the tasks for downloading external git releases.
+# This way the loop operation doesn't fail iterating over "NoneType" when a list doesn't exist.
+# Some loop operations still execute even with all the correct conditional checks for an empty, and NoneType, list.
+# That's why any list must be initialized somewhere first.
+# For consistency, and if necessary, use default([]) for lists created from registering results from tasks.
+# For lists defined in vars/ or defaults/, ensure it is in fact an empty list with some_list: [].
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html#using-conditionals-in-loops
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_conditionals.html#conditionals-based-on-variables
+# https://stackoverflow.com/questions/60304415/ansible-how-to-check-if-a-variable-is-not-null
+# https://stackoverflow.com/questions/35105615/use-a-default-if-a-variable-is-not-defined
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_filters.html#providing-default-values
+
+
+# ==========================================================
+# Lists of GitHub projects to obtain the latest release from
+# ==========================================================
+release_list_core:
+  - projectdiscovery/naabu
+  - jpillora/chisel
+  - DominicBreuker/pspy
+
+release_list_pentest:
+  - Pennyw0rth/NetExec
+  - itm4n/PrintSpoofer
+  - antonioCoco/JuicyPotatoNG
+  - ropnop/kerbrute
+  - runZeroInc/sshamble
+
+release_list_webapp: []
+
+release_list_wireless: []
+
+release_list_analysis: []
+#  - microsoft/avml     # Could be moved to a different task
+#  - rizinorg/cutter    # Now available in Kali via apt
+
+release_list_development: []
+
+# =================================================================
+# Lists of GitHub repos to clone (instead of obtaining the release)
+# =================================================================
+author_repo_list_core:
+  - https://github.com/straysheep-dev/linux-configs
+
+author_repo_list_pentest:
+  - https://github.com/insidetrust/statistically-likely-usernames
+  - https://github.com/trickest/wordlists
+#  - https://github.com/danielmiessler/SecLists
+
+author_repo_list_webapp:
+  - https://github.com/trickest/wordlists
+#  - https://github.com/danielmiessler/SecLists
+
+author_repo_list_wireless:
+  - https://github.com/straysheep-dev/EAP_buster
+  - https://github.com/straysheep-dev/ansible-role-docker
+  - https://github.com/blackhillsinfosec/WifiForge
+  - https://github.com/r4ulcl/WiFiChallengeLab-docker
+  - https://github.com/r4ulcl/wifi_db
+
+author_repo_list_analysis:
+  - https://github.com/mttaggart/blue-jupyter
+  - https://github.com/CYB3RMX/Qu1cksc0pe
+  - https://github.com/volatilityfoundation/volatility3
+  - https://github.com/DidierStevens/DidierStevensSuite
+  - https://github.com/DidierStevens/Beta
+  - https://github.com/Neo23x0/yarGen
+#  - https://github.com/e-m-b-a/emba    # Firmware analysis suite, minimum 8 vCPUs 16GB RAM
+#  - https://github.com/bw3ll/sharem    # Requires Windows DLLs
+
+author_repo_list_development: []
+
+# ========================
+# Lists of files to obtain
+# ========================
+file_list_core: []
+
+file_list_pentest:
+  - https://live.sysinternals.com/procdump64.exe
+  - https://live.sysinternals.com/PsExec64.exe
+  - https://live.sysinternals.com/strings64.exe
+  - https://live.sysinternals.com/tcpview64.exe
+  - https://raw.githubusercontent.com/NotSoSecure/password_cracking_rules/master/OneRuleToRuleThemAll.rule
+  - https://raw.githubusercontent.com/CompassSecurity/BloodHoundQueries/master/BloodHound_Custom_Queries/customqueries.json
+  - https://raw.githubusercontent.com/Kevin-Robertson/Powermad/master/Powermad.ps1
+  - https://raw.githubusercontent.com/NetSPI/PowerUpSQL/master/PowerUpSQL.ps1
+
+file_list_webapp: []
+
+file_list_wireless: []
+
+file_list_analysis: []
+# - TO DO: https://hex-rays.com/ida-free/
+
+file_list_development: []
+
+# =================================
+# Lists of pypi packages to install
+# =================================
+pip_list_core: []
+
+pip_list_pentest: []
+
+pip_list_webapp: []
+
+pip_list_wireless: []
+
+pip_list_analysis:
+  - pefile
+  - pycryptodome
+  - pyimpfuzzy
+  - ssdeep
+  - yara-python
+
+pip_list_development:
+  - pwntools
+
+pipx_list_core:
+  - ansible
+  - ansible-lint
+
+pipx_list_pentest:
+  - wsgidav
+
+pipx_list_webapp: []
+
+pipx_list_wireless: []
+
+pipx_list_analysis:
+  - ofrak    # Firmware analysis suite, https://github.com/redballoonsecurity/ofrak
+
+pipx_list_development: []
+
+# ================================
+# Lists of apt packages to install
+# ================================
+apt_list_core:
+  - apparmor-profiles
+  - apparmor-profiles-extra
+  - apparmor-utils
+  - binwalk
+  - cifs-utils
+  - code-oss
+  - curl
+  - dos2unix
+  - gdb
+  - hashcat
+  - hashid
+  - hash-identifier
+  - hexedit
+  - htop
+  - jq
+  - libimage-exiftool-perl
+  - mingw-w64
+  - naabu
+  - netexec
+  - nmap
+  - p7zip
+  - p7zip-rar
+  - pdfid
+  - pipx
+  - poppler-utils
+  - powershell
+  - proxychains4
+  - python3-pip
+  - python3-venv
+  - rdesktop
+  - screen
+  - smbclient
+  - thunderbird
+  - tmux
+  - tshark
+  - ufw
+  - wireshark
+  - xxd
+
+apt_list_pentest:
+  - bettercap
+  - bloodhound
+  - bloodhound.py
+  - braa
+  - cadaver
+  - crackmapexec
+  - crunch
+  - davtest
+  - dnscat2
+  - enum4linux
+  - enum4linux-ng
+  - evil-winrm
+  - exploitdb
+  - hping3
+  - hydra
+  - impacket-scripts
+  - iodine
+  - john
+  - krb5-user
+  - libssl-dev
+  - mariadb-client-core
+  - masscan
+  - mimikatz
+  - naabu
+  - ncat
+  - ncrack
+  - neo4j
+  - netexec
+  - nmap
+  - onesixtyone
+  - oscanner
+  - peass
+  - powercat
+  - powershell-empire
+  - powersploit
+  - python3-pypykatz
+  - python3-pywerview
+  - python3-scapy
+  - redis-tools
+  - ridenum
+  - rsmangler
+  - seclists
+  - smbmap
+  - smtp-user-enum
+  - snmp
+  - snmp-mibs-downloader
+  - snmpcheck
+  - sqlmap
+  - ssh-audit
+  - sshuttle
+  - sslscan
+  - thc-ipv6
+  - webshells
+  - windows-binaries
+  - wfuzz
+  - wordlists
+
+apt_list_webapp:
+  - burpsuite
+  - crunch
+  - dirb
+  - dirbuster
+  - feroxbuster
+  - gobuster
+  - naabu
+  - nikto
+  - nmap
+  - python3-scapy
+  - seclists
+  - whatweb
+  - wordlists
+  - zaproxy
+
+apt_list_wireless:
+  - aircrack-ng
+  - airgeddon
+  - bettercap
+  - bully
+  - dnsmasq
+  - eaphammer
+  - freeradius
+  - hostapd
+  - hostapd-mana
+  - jq
+  - kismet
+  - mdk4
+  - reaver
+  - wifiphisher
+  - wifipumpkin3
+  - wifite
+  - xxd
+
+apt_list_analysis:
+  - binwalk
+  - rizin-cutter
+  - de4dot
+  - gdb
+  - ghidra
+  - nasm
+  - p7zip
+  - p7zip-rar
+  - pdfid
+  - scalpel
+  - shellnoob
+  - sleuthkit
+  - unblob
+  - upx-ucl
+  - yara
+
+apt_list_development:
+  - code-oss
+  - gdb
+  - mingw-w64
+  - nasm
+  - shellnoob
+  - shellter
+  - veil
+  - wine
+  - wine32

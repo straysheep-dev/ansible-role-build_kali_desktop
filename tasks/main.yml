@@ -1,0 +1,51 @@
+---
+# tasks file for build_kali_desktop
+
+# Essential tasks
+
+- name: Include Essential Tasks (config)
+  include_tasks: config.yml
+
+- name: Include Essential Tasks (files)
+  include_tasks: files.yml
+
+- name: Include Essential Tasks (accounts)
+  include_tasks: accounts.yml
+
+- name: Include Essential Tasks (guest-utils)
+  include_tasks: guest-utils.yml
+
+# C2 tasks (defaults to "none")
+
+- name: Include C2 Frameworks
+  include_tasks: tools-c2.yml
+
+# Optional tasks
+
+- name: Include Core Tools
+  include_tasks: tools-core.yml
+  when: core_tools
+
+- name: Include Pentest Tools
+  include_tasks: tools-pentest.yml
+  when: pentest_tools
+
+- name: Include WebApp Tools
+  include_tasks: tools-webapp.yml
+  when: webapp_tools
+
+- name: Include Wireless Tools
+  include_tasks: tools-wireless.yml
+  when: wireless_tools
+
+- name: Include Analysis Tools
+  include_tasks: tools-analysis.yml
+  when: analysis_tools
+
+- name: Include Forensic Tools
+  include_tasks: tools-forensics.yml
+  when: forensics_tools
+
+- name: Include Development Tools
+  include_tasks: tools-development.yml
+  when: development_tools

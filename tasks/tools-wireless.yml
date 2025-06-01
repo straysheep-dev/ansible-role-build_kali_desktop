@@ -1,0 +1,189 @@
+---
+# build_kali_desktop/tasks/tools-wireless.yml
+
+# Any general tools or system services not specfic to kali such as aide/auditd, DNS, or HIDS/IPS should be handled by other roles
+# Each task file shares the same structure to maintain its own tool set:
+# - apt packages
+# - pip / go / ruby / npm packages
+# - git release files
+# - git repos to clone
+# - any other individual files to download
+# - any additional changes or adjustments specific to this task file
+# For example, use this template to create a tools-forensics.yml task file
+# apt_list_wireless would change to apt_list_forensics, and vars/main.yml would contain the apt_list_forensics variable of apt packages related to forensics
+# Populate the remaining areas with any necessary lists; pip_list_forensics, author_repo_list_forensics, and so on
+
+# ============
+# apt packages
+# ============
+- name: Install packages from apt (wireless)
+  ansible.builtin.apt:
+    pkg: "{{ apt_list_wireless }}"
+    state: latest
+    autoclean: true
+    autoremove: true
+  become: true
+  become_method: ansible.builtin.sudo
+  when: apt_list_wireless is defined and apt_list_wireless != None and apt_list_wireless | length > 0
+
+# ============
+# pip packages
+# ============
+- name: Install essential packages via pip (wireless)
+  ansible.builtin.pip:
+    name: "{{ pip_list_wireless }}"
+    extra_args: --user
+    exectuable: pip3              # Otherwise may use pip3.11, or pip3.12; both have their own pip environments
+    break_system_packages: true    # This may be required
+  when: pip_list_wireless is defined and pip_list_wireless != None and pip_list_wireless | length > 0
+
+# Use pipx for now, some packages may need a virtual environment
+- name: Instal essential packages via pipx (wireless)
+  ansible.builtin.shell: |
+    pipx install "{{ item }}"
+  args:
+    executable: /bin/bash
+  loop: "{{ pipx_list_wireless }}"
+  when: pipx_list_wireless is defined and pipx_list_wireless != None and pipx_list_wireless | length > 0
+
+# ==============================================
+# External git release files (release_list_wireless)
+# ==============================================
+# Query the GitHub API, similar to how the sliver c2 installer works
+# https://github.com/BishopFox/sliver/blob/d0e5fbb68081ea8853e4cb709cffb19fec1f675d/docs/sliver-docs/public/install#L98
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/uri_module.html#examples
+# https://stackoverflow.com/questions/50966777/ansible-download-latest-release-binary-from-github-repo
+# https://stackoverflow.com/questions/65231649/get-specific-data-from-github-api-url-via-ansible
+# If you're debugging and trying to parse JSON response data from local OR remote JSON files (not url responses), opt to use ansible.builtin.slurp to
+# ingest the data:
+#   https://stackoverflow.com/questions/35403769/how-to-read-json-file-using-ansible
+#     https://stackoverflow.com/a/63516424
+#   https://docs.ansible.com/ansible/latest/collections/ansible/builtin/slurp_module.html
+# For complex data parsing:
+# https://docs.ansible.com/ansible/latest/playbook_guide/complex_data_manipulation.html
+# JSON response structure:
+# The "top level" data returned by GitHub's API is a dictionary { key1:value,key2:value... }
+# "assets" is a top level key with a list of dictionaries as its value { ... "assets": [{key1:value, key2:value...}] ...}
+# Remember that lists work based on array elements [<int>] for example [0] is the first element in an arrary
+# Dictionaries are key:value pairs, so in other words keys can be thought of as the "names"
+# Take the following JSON data structures:
+#   ok: [localhost] => (item={'assets': [{'foo': [{'bar': 'findme'}]}]})
+#   ok: [localhost] => (item={'assets': [{'foo': [{'bar': 'findme2'}, {'bar': 'findme4'}, {'bar': 'findme5'}]}]})
+#   ok: [localhost] => (item={'assets': [{'foo': [{'bar': 'findme3'}]}]})
+# This is a dictionary with one key ('assets'), the value of which is a list of one item ('foo') which is another (nested) dictionary, the value of which is
+# another list of multiple dictionaries.
+# Each dictionary is considered a separate object, that's how they there can be multiple values for a 'bar' key across multiple dictionaries in the same list
+# If the 'bar' key was repeated within the same dicitonary (aka object), the final value would overwrite all other values of 'bar' in that dictionary
+# You could access the value of all "bar" keys, with:
+#   extracted_keys: "{{ extracted_keys | default([]) + item.assets | map(attribute='foo') | flatten | map(attribute='bar') | list }}"
+#   - Initialize an empty list with `extracted_keys | default([])`
+#   - `item` is the keyword being looped over, in this case JSON data, .assets is the first "object" in the data to be accessed
+# To explain `map()` + `flatten`, take the following JSON data structure:
+#   {"assets": [{"foo": [{"bar": "findme","baz": {"alpha": {"beta": [{"gamma": "delta"}]}}}]}]}
+# You could access the "gamma" key's value of "delta" with:
+#   extracted_keys:
+#   "{{ extracted_keys | default([]) + item.assets | map(attribute='foo') | flatten | map(attribute='baz.alpha.beta') | flatten | map(attribute='gamma') | flatten | list }}"
+# - Each list must be map()'d and flattened like above to access elements within it: item.assets | map(attribute='foo') | flatten | ...
+# - That will give you access to all the objects within the "foo" list
+# - Otherwise you can access / traverse subsequent nested objects like this: item.assets.foo.bar until you reach another list
+# - See: https://docs.ansible.com/ansible/latest/playbook_guide/complex_data_manipulation.html#extract-keys-from-a-dictionary-matching-elements-from-a-list
+# Read basenames of a list with {{ my_url_list | map('basename') | list }}
+#   https://stackoverflow.com/questions/64766297/save-the-base-name-of-each-path-in-a-list-to-a-new-list
+# Test strings with reject('<plugin>', '<string>') where plugin could be search, match, equalto, regex, etc.
+#   https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_tests.html#testing-strings
+# .results is used to access the return value of loops
+#   https://docs.ansible.com/ansible/latest/reference_appendices/common_return_values.html#results
+
+- name: "Obtain latest release info for external GitHub packages (wireless)"
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/{{ item }}/releases/latest"
+    return_content: true
+  register: response_json
+  with_items: "{{ release_list_wireless }}"
+  when: release_list_wireless is defined and release_list_wireless != None and release_list_wireless | length > 0
+
+# Will need to find a way to move the regex into it's own variable, currently isn't an easy swap
+# '(mac|darwin|arm|mips|ia32|ppc|s390x)' defines strings in release files we don't need to download
+- name: "Gather browser_download_url values from latest releases via API (wireless)"
+  set_fact:
+    browser_download_urls: "{{ browser_download_urls | default([]) + item.json.assets | map(attribute='browser_download_url') | reject('regex', '(mac|darwin|arm|mips|ia32|ppc|s390x)') | list }}"
+  loop: "{{ response_json.results }}"
+  when: item.json.assets[0].browser_download_url is defined
+
+# - name: Debug all download URLs
+#   ansible.builtin.debug:
+#     msg: "{{ browser_download_urls }}"
+#     #msg: "{{ browser_download_urls | map('basename') | list }}"
+
+- name: "Check downloads folder for each release file (wireless)"
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/{{ item }}"
+  register: release_file
+  with_items: "{{ browser_download_urls | map('basename') | list }}"
+  when: browser_download_urls is defined and browser_download_urls != None and browser_download_urls | length > 0
+
+# Do something if package exists
+# - name: "Print if release file exists locally (wireless)"
+#   ansible.builtin.debug:
+#     msg: "{{ item.item }}"
+#   when: item.stat.exists
+#   loop: "{{ release_file.results }}"
+
+# with_together (replaced by loop: "{{ list_one|zip(list_two)|list }}") lets you reference two lists in a single loop as an array
+# with_together is left as-is for readability
+# The loop: syntax can be uncommented to replace with_together:
+# Regardless of the syntax used, the first list is accessed as index [0], then the next list as [1], etc.
+#   https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_loops.html#with-together
+# In other words, do something if package does NOT exist
+- name: "Download missing release files (wireless)"
+  ansible.builtin.get_url:
+    url: "{{ item.0 }}"
+    dest: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/"
+    mode: "0644"
+  loop: "{{ browser_download_urls | zip(release_file.results) | list }}"
+  when: (browser_download_urls is defined and browser_download_urls != None and browser_download_urls | length > 0) and
+        (not item.1.stat.exists)
+#  with_together:
+#    - "{{ browser_download_urls }}"
+#    - "{{ release_file.results }}"
+
+# ==========================================
+# External git repos (author_repo_list_wireless)
+# ==========================================
+- name: "Clone and sync external git repos (wireless)"
+  ansible.builtin.git:
+    repo: "{{ item }}"
+    dest: "/home/{{ ansible_facts['env']['USER'] }}/src/{{ item | basename }}"
+    clone: true
+    update: true
+    version: HEAD # noqa: latest
+  loop: "{{ author_repo_list_wireless }}"
+  when: author_repo_list_wireless is defined and author_repo_list_wireless != None and author_repo_list_wireless | length > 0
+
+# ========================================
+# External files (external_file_list_wireless)
+# ========================================
+# https://stackoverflow.com/questions/63252155/how-to-iterate-over-multiple-urls-using-get-url-with-ansible
+- name: "Check downloads folder for each individual file (wireless)"
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/{{ item }}"
+  register: individual_files
+  with_items: "{{ file_list_wireless | map('basename') | list }}"
+  when: file_list_wireless is defined and file_list_wireless != None and file_list_wireless | length > 0
+
+- name: "Download any missing external files (wireless)"
+  ansible.builtin.get_url:
+    url: "{{ item.1 }}"
+    dest: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/"
+    mode: "0644"
+  loop: "{{ individual_files.results | zip(file_list_wireless) | list }}"
+  when: (file_list_wireless is defined and file_list_wireless != None and file_list_wireless | length > 0) and
+        (individual_files is defined and individual_files != None and individual_files | length > 0) and
+        (not item.0.stat.exists)
+#  with_together:
+#    - "{{ individual_files.results }}"
+#    - "{{ file_list_wireless }}"
+
+# ====================
+# Adjustments / Extras
+# ====================

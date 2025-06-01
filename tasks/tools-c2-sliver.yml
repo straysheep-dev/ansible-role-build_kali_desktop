@@ -1,0 +1,69 @@
+---
+# build_kali_desktop/tasks/tools-c2-sliver.yml
+
+# The latest sliver version is available in Kali's apt repo, however it doesn't configure the system service.
+# This task will use the installer script from the sliver GitHub for now. This is the same file you get from https://sliver.sh/install.
+
+- name: Ensure dependancies are installed
+  ansible.builtin.apt:
+    pkg:
+      - git
+      - mingw-w64
+    state: present
+  become: true
+  become_method: ansible.builtin.sudo
+
+# ==========
+# Kali (apt)
+# ==========
+
+# - name: Install Sliver C2 (apt)
+#   ansible.builtin.apt:
+#     name: sliver
+#     state: latest
+#     update_cache: true
+#   become: true
+#   become_method: ansible.builtin.sudo
+
+# =============
+# Kali (script)
+# =============
+
+# This is the same file you get from https://sliver.sh/install
+- name: Download Sliver C2 installer script, check SHA256SUM
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/BishopFox/sliver/master/docs/sliver-docs/public/install
+    dest: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/sliver-installer.sh"
+    checksum: sha256:d9c3f098e01e8c8691fc56fb73f2687311a0ac3524066a91c346402146fd6b11
+    mode: "0750"
+
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+# Ensures we only run the installer if the sliver service doesn't exist
+- name: Install Sliver C2 (script)
+  ansible.builtin.command: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/sliver-installer.sh"
+  become: true
+  become_method: ansible.builtin.sudo
+  when: ansible_facts.services['sliver.service'] is not defined
+
+# This means sliver can only be accessed locally or via ssh port forwarding
+- name: Set Sliver daemon to only listen on localhost
+  ansible.builtin.lineinfile:
+    path: /root/.sliver/configs/server.json
+    search_string: '"host": "",'
+    line: '        "host": "127.0.0.1",'
+    owner: root
+    group: root
+    mode: "0600"
+  become: true
+  become_method: ansible.builtin.sudo
+
+# Also restarts the service so it's only listening on localhost
+- name: Enable Sliver service on startup
+  ansible.builtin.service:
+    name: sliver
+    state: restarted
+    enabled: true
+  become: true
+  become_method: ansible.builtin.sudo
