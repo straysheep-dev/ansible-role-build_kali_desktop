@@ -133,9 +133,9 @@ The apparmor profiles here are [my own fork](https://github.com/straysheep-dev/l
 
 The `MPL-2.0` file and the original `usr.bin.firefox.apparmor.14.10` profile are from the [Firefox source on launchpad](https://bazaar.launchpad.net/~mozillateam/firefox/firefox.focal/files/head:/debian). That repo also contains a [copyright](https://github.com/straysheep-dev/ansible-role-build_kali_desktop/blob/LICENSES/copyright) file which listed `usr.bin.firefox.apparmor.14.10` as falling under the MPL-2.0.
 
-- `apparmor-usr.bin.firefox` falls under the `MPL-2.0` license
-- `apparmor-firefox.abstractions` appears to be created by `aa-update-browser` and falls under the `GPL-2.0-or-later` license
-- `apparmor-usr.bin.firefox.local` is my local override file, and falls under the default `MIT` license of this repo
+- `apparmor-usr.bin.firefox` falls under the MPL-2.0 license
+- `apparmor-firefox.abstractions` appears to be created by `aa-update-browser` and falls under the GPL-2.0-or-later license
+- `apparmor-usr.bin.firefox.local` is my local override file, and falls under the default MIT license of this repo
 
 Author Information
 ------------------
