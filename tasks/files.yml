@@ -24,6 +24,8 @@
   loop:
     - { dest: "src" }
     - { dest: "tools" }
+    - { dest: "Downloads" }
+    - { dest: "Documents" }
 
 # Creates folders to serve files from
 - name: "Create ~/Public/ file share folders"
