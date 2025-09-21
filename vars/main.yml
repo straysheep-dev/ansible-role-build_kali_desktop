@@ -164,8 +164,8 @@ apt_list_core:
   - naabu
   - netexec
   - nmap
-  - p7zip
-  - p7zip-rar
+  - 7zip
+  - 7zip-rar
   - pdfid
   - pipx
   - poppler-utils
@@ -283,8 +283,8 @@ apt_list_analysis:
   - gdb
   - ghidra
   - nasm
-  - p7zip
-  - p7zip-rar
+  - 7zip
+  - 7zip-rar
   - pdfid
   - scalpel
   - shellnoob
