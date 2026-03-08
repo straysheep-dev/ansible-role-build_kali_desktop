@@ -25,7 +25,7 @@
     "OverrideFirstRunPage": "",
     "OverridePostUpdatePage": "",
     "PromptForDownloadLocation": false,
-    "SanitizeOnShutdown": false,
+    "SanitizeOnShutdown": true,
     "SearchBar": "separate",
     "SearchSuggestEnabled": false,
     "Homepage": {
@@ -40,8 +40,7 @@
       "Install": ["/usr/local/share/ca-certificates/burpsuite.der", "/usr/local/share/ca-certificates/zaproxy.cer"]
     },
     "DNSOverHTTPS": {
-      "Enabled": true,
-      "Fallback": false
+      "Enabled": false
     },
     "Cookies": {
       "Default": true,
@@ -168,7 +167,7 @@
       "Enabled": false,
       "Locked": false
     },
-    "ExtensionUpdate": false,
+    "ExtensionUpdate": true,
     "ExtensionSettings": {
       "*": {
         "blocked_install_message": "Extension blocked by policy",
@@ -176,13 +175,11 @@
         "installation_mode": "blocked",
         "allowed_types": ["extension"]
       },
-      "uBlock0@raymondhill.net": {
-        "installation_mode": "force_installed",
-        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
-      },
       "@testpilot-containers": {
         "installation_mode": "force_installed",
-        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/multi-account-containers/latest.xpi"
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/multi-account-containers/latest.xpi",
+        "updates_disabled": false,
+        "private_browsing": true
       }
     },
     "Preferences": {
