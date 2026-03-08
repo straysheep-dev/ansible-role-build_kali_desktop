@@ -1,11 +1,16 @@
 #!/bin/bash
 
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2024 straysheep-dev
+# Copyright (c) 2026 straysheep-dev
 
 # shellcheck disable=SC2034
 
 # Run this weekly or daily as part of normal system maintenance
+#
+# Cron Example (run as root) for daily updates at 3a local time, reboot at 4a if needed:
+# m h  dom mon dow   command
+# 0 3 * * * /bin/bash /usr/local/bin/update-packages.sh
+# 0 4 * * * /bin/bash -c 'if [[ -e /run/reboot-required ]]; then sudo systemctl reboot; fi'
 
 BLUE="\033[01;34m"
 GREEN="\033[01;32m"
@@ -26,11 +31,17 @@ function PrintUpdatingFlatpakApps() {
 function PrintUpdatingFirmware() {
 	echo -e "[${BLUE}>${RESET}] ${BOLD}Checking for available firmware updates...${RESET}"
 }
+function PrintUpdatingSystemPackagesError() {
+	echo -e "[${RED}*${RESET}] ${BOLD}Package manager not detected. Exiting.${RESET}"
+}
 
 # APT Related Settings
 #
 # DEBIAN_FRONTEND=noninteractive sets apt to run without live input from a user or admin
-# NEEDRESTART_MODE=a is an Ubuntu-specific setting that automatically restarts services when necessary
+# NEEDRESTART_MODE=a is an Ubuntu-specific setting (from 22.04 LTS and later) that automatically restarts services when necessary
+# Options are "a" to auto-restart services unattended, "l" to only list services needing a restart, or "i" to prompt interactively
+# https://github.com/liske/needrestart/issues/109
+# https://github.com/liske/needrestart/blob/master/man/needrestart.1
 #
 # Even with the previous variables set, you may be prompted to manage configuration file
 # changes via dpkg, for example when you've modified a file and an update ships a new one.
@@ -63,6 +74,9 @@ elif (command -v dnf > /dev/null); then
 	sudo dnf upgrade -yq
 	sudo dnf autoremove -yq
 	sudo dnf clean all
+else
+	PrintUpdatingSystemPackagesError
+	exit 1
 fi
 
 if (command -v snap > /dev/null); then
@@ -74,7 +88,11 @@ fi
 if (command -v flatpak > /dev/null); then
 	true
 	PrintUpdatingFlatpakApps
-	sudo flatpak update  # Need to check for a -yq option
+	# Automating updates through flatpak has some risk. See the post the Arch Linux Wiki points to.
+	# https://wiki.archlinux.org/title/Flatpak#Automatic_updates_via_systemd
+	# Applications can gain new permissions that you may not have a preconfigured setting for.
+	# This needs reviewed.
+	sudo flatpak update --noninteractive --assumeyes
 fi
 
 if (sudo dmesg | grep -iPq 'hypervisor'); then
