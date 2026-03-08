@@ -18,7 +18,7 @@
 # Creates folders commonly used for tools or source code
 - name: "Create extra home folders"
   ansible.builtin.file:
-    path: "/home/{{ ansible_facts['env']['USER'] }}/{{ item.dest }}"
+    path: "{{ ansible_user_dir }}/{{ item.dest }}"
     state: directory
     mode: '0755'
   loop:
@@ -30,7 +30,7 @@
 # Creates folders to serve files from
 - name: "Create ~/Public/ file share folders"
   ansible.builtin.file:
-    path: "/home/{{ ansible_facts['env']['USER'] }}/Public/{{ item.dest }}"
+    path: "{{ ansible_user_dir }}/Public/{{ item.dest }}"
     state: directory
     mode: '0755'
   loop:

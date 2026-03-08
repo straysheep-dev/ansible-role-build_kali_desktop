@@ -19,7 +19,7 @@
 - name: Install packages from apt (wireless)
   ansible.builtin.apt:
     pkg: "{{ apt_list_wireless }}"
-    state: latest
+    state: present
     autoclean: true
     autoremove: true
   become: true
@@ -117,7 +117,7 @@
 
 - name: "Check downloads folder for each release file (wireless)"
   ansible.builtin.stat:
-    path: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/{{ item }}"
+    path: "{{ tools_path }}/{{ item }}"
   register: release_file
   with_items: "{{ browser_download_urls | map('basename') | list }}"
   when: browser_download_urls is defined and browser_download_urls != None and browser_download_urls | length > 0
@@ -138,7 +138,7 @@
 - name: "Download missing release files (wireless)"
   ansible.builtin.get_url:
     url: "{{ item.0 }}"
-    dest: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/"
+    dest: "{{ tools_path }}/"
     mode: "0644"
   loop: "{{ browser_download_urls | zip(release_file.results) | list }}"
   when: (browser_download_urls is defined and browser_download_urls != None and browser_download_urls | length > 0) and
@@ -166,7 +166,7 @@
 # https://stackoverflow.com/questions/63252155/how-to-iterate-over-multiple-urls-using-get-url-with-ansible
 - name: "Check downloads folder for each individual file (wireless)"
   ansible.builtin.stat:
-    path: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/{{ item }}"
+    path: "{{ tools_path }}/{{ item }}"
   register: individual_files
   with_items: "{{ file_list_wireless | map('basename') | list }}"
   when: file_list_wireless is defined and file_list_wireless != None and file_list_wireless | length > 0
@@ -174,7 +174,7 @@
 - name: "Download any missing external files (wireless)"
   ansible.builtin.get_url:
     url: "{{ item.1 }}"
-    dest: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/"
+    dest: "{{ tools_path }}/"
     mode: "0644"
   loop: "{{ individual_files.results | zip(file_list_wireless) | list }}"
   when: (file_list_wireless is defined and file_list_wireless != None and file_list_wireless | length > 0) and

@@ -1,5 +1,6 @@
 ---
 # defaults file for build_kali_desktop
+tools_path: "{{ ansible_user_dir }}/tools"  # ~/tools
 
 # Set to true to include core tools
 core_tools: true
