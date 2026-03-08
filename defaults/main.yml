@@ -22,6 +22,9 @@ development_tools: false
 # Set to true to include forensics tools
 forensics_tools: false
 
-# Choose from a list of C2 frameworks to install one.
-# Currently only "none" or "sliver" are supported options
-c2_choice: "none"  # none, sliver
+# Choose from a list of C2 frameworks to install any combination.
+# Currently only "sliver" is supported
+c2_choices: []  # ["sliver", "empire", "merlin", "trevor", "mythic"]
+
+# Configured checksums for repeatability and security
+sliver_installer_sha256: "4fcfe1858eb6c16ecf4e7a356b14b911b6ff5b9a1e5fcb7a3417dd58ae9aabf6"

@@ -4,48 +4,66 @@
 # The latest sliver version is available in Kali's apt repo, however it doesn't configure the system service.
 # This task will use the installer script from the sliver GitHub for now. This is the same file you get from https://sliver.sh/install.
 
-- name: Ensure dependancies are installed
-  ansible.builtin.apt:
-    pkg:
-      - git
-      - mingw-w64
-    state: present
-  become: true
-  become_method: ansible.builtin.sudo
-
-# ==========
-# Kali (apt)
-# ==========
-
+# ===========
+# apt Install
+# ===========
+#
+# - name: Ensure dependancies are installed
+#   ansible.builtin.apt:
+#     pkg:
+#       - git
+#       - mingw-w64
+#     state: present
+#   become: true
+#   become_method: ansible.builtin.sudo
+#
 # - name: Install Sliver C2 (apt)
 #   ansible.builtin.apt:
 #     name: sliver
-#     state: latest
+#     state: present
 #     update_cache: true
 #   become: true
 #   become_method: ansible.builtin.sudo
 
-# =============
-# Kali (script)
-# =============
+# ==============
+# Script Install
+# ==============
 
 # This is the same file you get from https://sliver.sh/install
-- name: Download Sliver C2 installer script, check SHA256SUM
+# Fails if the checksum of the installer has changed, so you can review before running it
+# `ignore_errors: true` allows builds to safely skip this task
+- name: Download Sliver C2 installer script
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/BishopFox/sliver/master/docs/sliver-docs/public/install
-    dest: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/sliver-installer.sh"
-    checksum: sha256:d9c3f098e01e8c8691fc56fb73f2687311a0ac3524066a91c346402146fd6b11
+    dest: "{{ tools_path }}/sliver-installer.sh"
     mode: "0750"
+    checksum: "sha256:{{ sliver_installer_sha256 }}"
+  register: sliver_download
+  ignore_errors: true
+
+- name: Set SHA256SUM result of sliver-installer.sh
+  ansible.builtin.set_fact:
+    sliver_checksum_ok: "{{ sliver_download is not failed }}"
+
+- name: Alert on checksum failure
+  ansible.builtin.debug:
+    msg: |
+      [*]CHECKSUM MISMATCH
+      The task to install Sliver will be skipped.
+      Review https://github.com/BishopFox/sliver/blob/master/docs/sliver-docs/public/install for changes first.
+  when: not sliver_checksum_ok
 
 - name: Populate service facts
   ansible.builtin.service_facts:
 
-# Ensures we only run the installer if the sliver service doesn't exist
+# Ensures we only run the installer if checksum is valid and service doesn't exist
 - name: Install Sliver C2 (script)
-  ansible.builtin.command: "/home/{{ ansible_facts['env']['USER'] }}/Downloads/sliver-installer.sh"
+  ansible.builtin.command: "{{ tools_path }}/sliver-installer.sh"
+  when:
+    - sliver_checksum_ok
+    - ansible_facts.services['sliver.service'] is not defined
   become: true
   become_method: ansible.builtin.sudo
-  when: ansible_facts.services['sliver.service'] is not defined
 
 # This means sliver can only be accessed locally or via ssh port forwarding
 - name: Set Sliver daemon to only listen on localhost
@@ -56,6 +74,9 @@
     owner: root
     group: root
     mode: "0600"
+  when:
+    - sliver_checksum_ok
+    - ansible_facts.services['sliver.service'] is defined
   become: true
   become_method: ansible.builtin.sudo
 
@@ -65,5 +86,8 @@
     name: sliver
     state: restarted
     enabled: true
+  when:
+    - sliver_checksum_ok
+    - ansible_facts.services['sliver.service'] is defined
   become: true
   become_method: ansible.builtin.sudo

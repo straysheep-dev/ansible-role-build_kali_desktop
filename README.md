@@ -29,7 +29,7 @@ Just Kali Linux. Both real hardware and virtualized environments will work.
 Role Variables
 --------------
 
-Use `defaults/main.yml` to select tool sets to install. "core" is always present as the base set of packages for general usage.
+[`defaults/main.yml`](./defaults/main.yml) describes tool sets to install. "core" is the only option enabled by default as the base set of packages for general usage.
 
 > [!NOTE]
 > *Currently only `core`, `pentest`, `webapp`, and `sliver` are ready to use.*
@@ -50,7 +50,7 @@ Use `defaults/main.yml` to select tool sets to install. "core" is always present
 - `forensics_tools: false` Set to `true` to include forensics tools
 - `development_tools: false` Set to `true` to include development tools
 
-All of the tools and packages are maintained through `vars/main.yml`, and each `tools-*` task file shares the same structure to maintain its own tool set. Each of these sources can be used to obtain and install tools:
+All of the tools and packages are maintained through [`vars/main.yml`](./vars/main.yml), and each `tools-*` task file shares the same structure to maintain its own tool set. Each of these sources can be used to obtain and install tools:
 
 - apt packages
 - pip / go / ruby / npm packages
@@ -60,7 +60,7 @@ All of the tools and packages are maintained through `vars/main.yml`, and each `
 - any additional changes or adjustments specific to this task file
 
 > [!TIP]
-> For example, the `tasks/tools-TEMPLATE.yml` was used to create a `tools-forensics.yml` task file.
+> For example, the [`tasks/tools-TEMPLATE.yml`](./tasks/tools-TEMPLATE.yml) was used to create a `tools-forensics.yml` task file.
 >
 > `apt_list_REPLACE_THIS` would change to `apt_list_forensics`, and `vars/main.yml` would contain the `apt_list_forensics` variable of apt packages related to forensics.
 >
@@ -77,20 +77,28 @@ Example Playbook
 Using an inventory.yml file, referencing a vault for the sudo password:
 
 ```yml
-remotegroup:
+pentest_infra:
   hosts:
     10.10.0.41:
       ansible_port: 2222
       ansible_user: kali
-      webapp_tools: true
-      c2_choice: "sliver"
       ansible_become_password: "{{ kali_sudo_pass }}"
       ansible_become_method: sudo
-vars:
-    #per_group_var: "some_other_value"
-    #per_group_list:
-      #- list_item_1
-      #- list_item_2
+    10.10.0.42:
+      ansible_port: 2222
+      ansible_user: kali
+      ansible_become_password: "{{ kali_sudo_pass }}"
+      ansible_become_method: sudo
+  vars:
+    core_tools: true
+    pentest_tools: true
+    webapp_tools: false
+    wireless_tools: false
+    analysis_tools: false
+    development_tools: false
+    forensics_tools: false
+    c2_choices: ["sliver"]  # ["sliver", "empire", "merlin", "trevor", "mythic"]
+    sliver_installer_sha256: "4fcfe1858eb6c16ecf4e7a356b14b911b6ff5b9a1e5fcb7a3417dd58ae9aabf6"
 
 ```
 
@@ -99,7 +107,7 @@ You could use this playbook file:
 ```yml
 - name: "Default Playbook"
   hosts:
-    - remotegroup
+    - pentest_infra
   roles:
     - role: "build_kali_desktop"
 ```

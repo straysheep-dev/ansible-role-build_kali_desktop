@@ -5,4 +5,8 @@
 
 - name: Include Sliver C2 tasks
   include_tasks: tools-c2-sliver.yml
-  when: c2_choice == "sliver"
+  when: '"sliver" in c2_choices'
+
+- name: Include PowerShell Empire C2 tasks
+  include_tasks: tools-c2-empire.yml
+  when: '"empire" in c2_choices'
